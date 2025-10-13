@@ -12,6 +12,7 @@ type Server struct {
 	IPVersion string
 	IP        string
 	Port      int
+	Router    ziface.IRouter
 }
 
 // TCP 服务器最核心的三步: 解析 addr, 创建 listen, accept
@@ -31,6 +32,9 @@ func (s *Server) Start() {
 			fmt.Println("listen ", s.IPVersion, " err ", err)
 		}
 		fmt.Println("start Zinx server success.", s.Name, "sucess listenning..")
+
+		var cid uint32
+		cid = 0
 		// 3 阻塞等待客户端链接, 处理客户端业务
 		for {
 			conn, err := listener.AcceptTCP()
@@ -39,27 +43,26 @@ func (s *Server) Start() {
 				continue
 			}
 
-			// 已经建立连接, 处理业务
-			go func() {
-				for {
-					buf := make([]byte, 512)
-					// 读取客户端数据 c -> s, 放到 buf 中
-					cnt, err := conn.Read(buf)
-					if err != nil {
-						fmt.Println("recv buf err", err)
-						continue
-					}
+			// 将处理链接的业务方法与 conn 绑定, 得到自定义的链接模块
+			dealConn := NewConnection(conn, cid, s.Router)
+			cid++
 
-					// 回显给客户端数据 s -> c, 取 buf 前 cnt 字节
-					if _, err := conn.Write(buf[:cnt]); err != nil {
-						fmt.Println("write back buf err", err)
-						continue
-					}
-				}
-			}()
+			// 启动当前的链接业务处理
+			go dealConn.Start()
 		}
 	}()
 }
+
+// 定义当前客户端链接所绑定的 handle api, 暂时写死, 后续优化应由 app 自定义实现
+//func CallBackToClient(conn *net.TCPConn, data []byte, cnt int) error {
+//	// 回显的业务
+//	fmt.Println("[Conn Handle] CallBackToClient...")
+//	if _, err := conn.Write(data[:cnt]); err != nil {
+//		fmt.Println("write back buf err", err)
+//		return errors.New("CallBackToClient error")
+//	}
+//	return nil
+//}
 
 func (s *Server) Stop() {
 	// todo: 释放资源
@@ -73,12 +76,18 @@ func (s *Server) Server() {
 	select {}
 }
 
+func (s *Server) AddRouter(router ziface.IRouter) {
+	s.Router = router
+	fmt.Println("Add Router Success!")
+}
+
 func NewServer(name string) ziface.IServer {
 	s := &Server{
 		Name:      name,
 		IPVersion: "tcp4",
 		IP:        "0.0.0.0",
 		Port:      8999,
+		Router:    nil,
 	}
 	return s
 }
