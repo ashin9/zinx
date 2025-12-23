@@ -3,6 +3,7 @@ package znet
 import (
 	"fmt"
 	"net"
+	"zinx/utils"
 	"zinx/ziface"
 )
 
@@ -17,7 +18,8 @@ type Server struct {
 
 // TCP 服务器最核心的三步: 解析 addr, 创建 listen, accept
 func (s *Server) Start() {
-	fmt.Printf("[*] Server Listener at IP: %s, Port %d, is starting\n", s.IP, s.Port)
+	fmt.Printf("[*] %s Server Listener at IP: %s, Port %d, is starting\n", s.Name, s.IP, s.Port)
+	fmt.Printf("[+] [Zinx] Version: %s, MaxConn: %d, MaxPktSize: %d", s.IPVersion, utils.GlobalObj.MaxConn, utils.GlobalObj.MaxPackageSize)
 
 	go func() {
 		// 1 获取 TCP 的 addr
@@ -83,10 +85,10 @@ func (s *Server) AddRouter(router ziface.IRouter) {
 
 func NewServer(name string) ziface.IServer {
 	s := &Server{
-		Name:      name,
+		Name:      utils.GlobalObj.Name,
 		IPVersion: "tcp4",
-		IP:        "0.0.0.0",
-		Port:      8999,
+		IP:        utils.GlobalObj.Host,
+		Port:      utils.GlobalObj.Port,
 		Router:    nil,
 	}
 	return s
