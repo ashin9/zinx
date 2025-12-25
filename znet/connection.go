@@ -1,9 +1,10 @@
 package znet
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"net"
-	"zinx/utils"
 	"zinx/ziface"
 )
 
@@ -30,12 +31,12 @@ func (c *Connection) StartReader() {
 
 	for {
 		// 读取客户端的数据到 buf
-		buf := make([]byte, utils.GlobalObj.MaxPackageSize)
-		_, err := c.Conn.Read(buf)
-		if err != nil {
-			fmt.Println("recv buf err:", err)
-			continue
-		}
+		//buf := make([]byte, utils.GlobalObj.MaxPackageSize)
+		//_, err := c.Conn.Read(buf)
+		//if err != nil {
+		//	fmt.Println("recv buf err:", err)
+		//	continue
+		//}
 
 		// 调用绑定的业务逻辑方法
 		//if err := c.handlerAPI(c.Conn, buf, cnt); err != nil {
@@ -43,9 +44,34 @@ func (c *Connection) StartReader() {
 		//	break
 		//}
 
+		// 解包拆包
+		dp := NewDataPack()
+		// 读取 Msg Head
+		headData := make([]byte, dp.GetHeadLen())
+		if _, err := io.ReadFull(c.GetTCPConnection(), headData); err != nil {
+			fmt.Println("read msg head err: ", err)
+			return
+		}
+		// 拆包, 得到 msgID 和 msgDataLen 放在 msg 消息中
+		msg, err := dp.UnPack(headData)
+		if err != nil {
+			fmt.Println("unpack err: ", err)
+			return
+		}
+		// 根据 dataLen 再次读取 Data 放在 msg.Data 中
+		var data []byte
+		if msg.GetMsgLen() > 0 {
+			data = make([]byte, msg.GetMsgLen())
+			if _, err := io.ReadFull(c.GetTCPConnection(), data); err != nil {
+				fmt.Println("read msg data err: ", err)
+				return
+			}
+		}
+		msg.SetData(data)
+
 		req := Request{
 			conn: c,
-			data: buf,
+			msg:  msg,
 		}
 
 		// 执行注册的路由方法
@@ -89,9 +115,24 @@ func (c *Connection) RemoteAddr() net.Addr {
 	return c.Conn.RemoteAddr()
 }
 
-func (c *Connection) Send(data []byte) error {
-	//TODO implement me
-	panic("implement me")
+// 发送封包数据
+func (c *Connection) SendMsg(msgId uint32, data []byte) error {
+	if c.isClosed == true {
+		return errors.New("connection closed when send msg")
+	}
+	// 将 data 封包
+	dp := NewDataPack()
+	binMsg, err := dp.Pack(NewMsgPackage(msgId, data))
+	if err != nil {
+		fmt.Println("Pack err. msg id = ", msgId)
+		return errors.New("Pack err")
+	}
+	// 将数据发送给客户端
+	if _, err := c.Conn.Write(binMsg); err != nil {
+		fmt.Println("Write msg id ", msgId, "err: ", err)
+		return errors.New("conn Write err")
+	}
+	return nil
 }
 
 // 初始化链接模块的方法
