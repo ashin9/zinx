@@ -112,3 +112,46 @@ map 路由管理器，根据消息 msgID 选择不同路由器处理不同业务
 ![image-20251226183017689](./Pic/Zinx 设计.Pic/image-20251226183017689.png)
 
 协程池，保证 goroutine 不会大量创建销毁，减小协程创建销毁的资源开销
+
+
+
+## 链接管理
+
+需求：限制链接数，超过后拒绝链接请求，保证后端的及时响应
+
+实现：
+
+- 1，链接管理模块
+  - 定义
+  - 属性
+    - map 存储 Connection 链接集合
+    - 针对 map 的互斥锁
+  - 方法
+    - 增删
+    - 查，根据链接 id
+    - 查，当前链接总数
+    - 清理所有链接
+
+
+
+### 链接 hook 调用
+
+需求：创建连接后和销毁前，提供客户端可用的 hook 方法
+
+![image-20251231173932718](./Pic/Zinx 设计.Pic/image-20251231173932718.png)
+
+![image-20251231174039682](./Pic/Zinx 设计.Pic/image-20251231174039682.png)
+
+实现：
+
+- 添加属性
+  - 创建连接后，OnConnStart
+  - 销毁连接前，OnConnStop
+- 添加方法
+  - 注册 OnConnStart 钩子函数的方法
+  - 注册 OnConnStop 钩子函数的方法
+  - 调用 OnConnStart 
+  - 调用 OnConnStop
+- Conn 创建后调用 OnConnStart 
+- Conn 销毁前调用 OnConnStop
+
