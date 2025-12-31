@@ -15,9 +15,11 @@ type GlobalObject struct {
 	TcpServer ziface.IServer
 
 	// Zinx
-	Version        string
-	MaxConn        int
-	MaxPackageSize uint32
+	Version          string
+	MaxConn          int
+	MaxPackageSize   uint32
+	WorkerPoolSize   uint32 // 当前业务工作 worker 池的 goroutine 数量
+	MaxWorkerTaskLen uint32 // Zinx 框架允许用户最多开辟多少 Worker
 }
 
 var GlobalObj *GlobalObject
@@ -37,13 +39,15 @@ func (g *GlobalObject) ReLoad() {
 func init() {
 	// 默认值
 	GlobalObj = &GlobalObject{
-		Host:           "0.0.0.0",
-		Port:           8999,
-		Name:           "ZinxServer",
-		TcpServer:      nil,
-		Version:        "v0.5",
-		MaxConn:        1000,
-		MaxPackageSize: 4096,
+		Host:             "0.0.0.0",
+		Port:             8999,
+		Name:             "ZinxServer",
+		TcpServer:        nil,
+		Version:          "v0.8",
+		MaxConn:          1000,
+		MaxPackageSize:   4096,
+		WorkerPoolSize:   10,
+		MaxWorkerTaskLen: 1024,
 	}
 	GlobalObj.ReLoad()
 }

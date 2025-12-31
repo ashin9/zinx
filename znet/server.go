@@ -20,9 +20,12 @@ type Server struct {
 // TCP 服务器最核心的三步: 解析 addr, 创建 listen, accept
 func (s *Server) Start() {
 	fmt.Printf("[*] %s Server Listener at IP: %s, Port %d, is starting\n", s.Name, s.IP, s.Port)
-	fmt.Printf("[+] [Zinx] Version: %s, MaxConn: %d, MaxPktSize: %d", s.IPVersion, utils.GlobalObj.MaxConn, utils.GlobalObj.MaxPackageSize)
+	fmt.Printf("[+] [Zinx] Version: %s, MaxConn: %d, MaxPktSize: %d\n", s.IPVersion, utils.GlobalObj.MaxConn, utils.GlobalObj.MaxPackageSize)
 
 	go func() {
+		// 开启 worker goroutine 池和对应的 taskqueue
+		s.MsgHandler.StartWorkerPool()
+
 		// 1 获取 TCP 的 addr
 		addr, err := net.ResolveTCPAddr(s.IPVersion, fmt.Sprintf("%s:%d", s.IP, s.Port))
 		if err != nil {

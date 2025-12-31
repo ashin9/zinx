@@ -94,3 +94,21 @@ map 路由管理器，根据消息 msgID 选择不同路由器处理不同业务
 
 
 ![image-20251226172525716](./Pic/Zinx 设计.Pic/image-20251226172525716.png)
+
+
+
+## 消息队列和任务处理机制
+
+为什么？
+
+若有 10w 个 client 链接过来，则有 10w 个 reader 和 writer Goroutine，没有消息则阻塞，在 10w 个 goroutine 之间切换调度，浪费很大系统资源
+
+可不可以不管 client 请求量多大，固定 10 个 Goroutine，CPU 只切换调用这 10 个 Goroutine，可以节省系统资源
+
+
+
+### worker 池
+
+![image-20251226183017689](./Pic/Zinx 设计.Pic/image-20251226183017689.png)
+
+协程池，保证 goroutine 不会大量创建销毁，减小协程创建销毁的资源开销
