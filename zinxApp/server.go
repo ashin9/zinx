@@ -44,13 +44,39 @@ func DoConnBegin(conn ziface.IConnection) {
 		fmt.Println(err)
 		return
 	}
+
+	// 给当前的链接设置一些属性
+	fmt.Println("Set conn Name, Hoe ...")
+	conn.SetProperty("Name", "Ashing")
+	conn.SetProperty("Github", "https://github.com/ashin9")
+	conn.SetProperty("Blog", "https://ashin9.github.io/")
 }
 
 // 销毁链接前执行的 hook 函数
 func DoConnLost(conn ziface.IConnection) {
 	fmt.Println("===> DoConnLost is called...")
 	fmt.Println("conn ID", conn.GetConnID(), "is Lost...")
+
+	// 获取链接属性
+	//name, err := conn.GetProperty("Name")
+	//if err != nil {
+	//	return
+	//}
+	//fmt.Println(name)
+	if name, err := conn.GetProperty("Name"); err == nil {
+		fmt.Println("Name = ", name)
+	}
+
+	if github, err := conn.GetProperty("Github"); err == nil {
+		fmt.Println("Github = ", github)
+	}
+
+	if blog, err := conn.GetProperty("Blog"); err == nil {
+		fmt.Println("Blog = ", blog)
+	}
+
 }
+
 func main() {
 	s := znet.NewServer("[zinx v0.9]")
 	// 注册链接的 hook 方法

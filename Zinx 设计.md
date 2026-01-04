@@ -155,3 +155,18 @@ map 路由管理器，根据消息 msgID 选择不同路由器处理不同业务
 - Conn 创建后调用 OnConnStart 
 - Conn 销毁前调用 OnConnStop
 
+
+
+## 1.0 链接属性配置
+
+Connection 模块新增：
+
+- 属性
+  - 链接属性集合，map
+  - map 锁
+- 方法
+  - 增删改查
+
+使用 Zinx 1.0 开发
+
+- 
