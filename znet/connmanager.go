@@ -3,8 +3,8 @@ package znet
 import (
 	"errors"
 	"fmt"
+	"github.com/ashin9/zinx/ziface"
 	"sync"
-	"zinx/ziface"
 )
 
 // 链接管理模块

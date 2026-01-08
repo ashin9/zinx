@@ -3,11 +3,11 @@ package znet
 import (
 	"errors"
 	"fmt"
+	"github.com/ashin9/zinx/utils"
+	"github.com/ashin9/zinx/ziface"
 	"io"
 	"net"
 	"sync"
-	"zinx/utils"
-	"zinx/ziface"
 )
 
 // 链接模块

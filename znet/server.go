@@ -2,9 +2,9 @@ package znet
 
 import (
 	"fmt"
+	"github.com/ashin9/zinx/utils"
+	"github.com/ashin9/zinx/ziface"
 	"net"
-	"zinx/utils"
-	"zinx/ziface"
 )
 
 // iServer 接口的实现

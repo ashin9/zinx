@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"zinx/ziface"
-	"zinx/znet"
+	"github.com/ashin9/zinx/ziface"
+	"github.com/ashin9/zinx/znet"
 )
 
 // App 自定义路由

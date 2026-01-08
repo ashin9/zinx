@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/ashin9/zinx/znet"
 	"io"
 	"net"
 	"time"
-	"zinx/znet"
 )
 
 // 模拟客户端

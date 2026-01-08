@@ -2,9 +2,9 @@ package znet
 
 import (
 	"fmt"
+	"github.com/ashin9/zinx/utils"
+	"github.com/ashin9/zinx/ziface"
 	"strconv"
-	"zinx/utils"
-	"zinx/ziface"
 )
 
 // 消息处理模块

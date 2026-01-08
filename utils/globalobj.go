@@ -3,8 +3,8 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ashin9/zinx/ziface"
 	"os"
-	"zinx/ziface"
 )
 
 type GlobalObject struct {
